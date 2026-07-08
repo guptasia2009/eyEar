@@ -6,6 +6,7 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 #include <ArduinoJson.h>
+#include <Wire.h>
 #include "secrets.h"
 
 // BLE
@@ -16,6 +17,9 @@
 BLEServer* pServer = NULL;
 BLECharacteristic* pCharacteristic = NULL;
 bool deviceConnected = false;
+
+bool wifiReady = false;
+bool cameraReady = false;
 
 // ========== BASE64 ==========
 static const char base64_chars[] =
@@ -64,23 +68,24 @@ class ServerCallbacks : public BLEServerCallbacks {
 };
 
 // ========== SEND VIA BLE ==========
-void sendToPhone(String message) {
-  Serial.println(">> " + message);
+void sendToPhone(char type, String message) {
+  Serial.println(String(type) + ": " + message);
   if (!deviceConnected) return;
-  int chunkSize = 500;
-  int len = message.length();
-  if (len <= chunkSize) {
-    pCharacteristic->setValue(message.c_str());
+
+  String full = String(type) + ":" + message;
+  const int chunkSize = 20;
+  int len = full.length();
+  for (int i = 0; i < len; i += chunkSize) {
+    String chunk = full.substring(i, min(len, i + chunkSize));
+    pCharacteristic->setValue(chunk.c_str());
     pCharacteristic->notify();
-    delay(100);
-  } else {
-    for (int i = 0; i < len; i += chunkSize) {
-      String chunk = message.substring(i, min(len, i + chunkSize));
-      pCharacteristic->setValue(chunk.c_str());
-      pCharacteristic->notify();
-      delay(100);
-    }
+    delay(20);
   }
+
+  // Empty notify marks end of message for the app's reassembly logic.
+  pCharacteristic->setValue("");
+  pCharacteristic->notify();
+  delay(20);
 }
 
 // ========== WIFI ==========
@@ -94,9 +99,9 @@ bool connectWiFi() {
     Serial.println("  seen: " + WiFi.SSID(i) + "  (RSSI " + String(WiFi.RSSI(i)) + ", ch " + String(WiFi.channel(i)) + ")");
     if (WiFi.SSID(i) == String(WIFI_SSID)) found = true;
   }
-  Serial.println(found ? "Target SSID found in scan." : "Target SSID NOT found in scan (check band/name/broadcast).");
+  sendToPhone('S', found ? "Target network found." : "Target network NOT found.");
 
-  Serial.println("Connecting to WiFi...");
+  sendToPhone('S', "Connecting to WiFi...");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   int attempts = 0;
   while (WiFi.status() != WL_CONNECTED && attempts < 20) {
@@ -106,16 +111,31 @@ bool connectWiFi() {
   }
   Serial.println();
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("WiFi connected! IP: " + WiFi.localIP().toString());
+    sendToPhone('S', "WiFi connected: " + WiFi.localIP().toString());
     return true;
   }
-  Serial.println("WiFi failed. WiFi.status() = " + String(WiFi.status()));
+  sendToPhone('E', "WiFi failed (status " + String(WiFi.status()) + ")");
   return false;
 }
 
 // ========== CAMERA ==========
+void scanSccbBus() {
+  Wire.begin(40, 39); // SIOD, SIOC
+  Serial.println("Scanning I2C/SCCB bus on SDA=40, SCL=39...");
+  int found = 0;
+  for (uint8_t addr = 1; addr < 127; addr++) {
+    Wire.beginTransmission(addr);
+    if (Wire.endTransmission() == 0) {
+      Serial.println("  device at 0x" + String(addr, HEX));
+      found++;
+    }
+  }
+  if (found == 0) Serial.println("  no devices found on bus.");
+  Wire.end();
+}
+
 bool initCamera() {
-  Serial.println("Initializing camera...");
+  sendToPhone('S', "Initializing camera...");
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer   = LEDC_TIMER_0;
@@ -143,38 +163,39 @@ bool initCamera() {
   config.fb_location  = CAMERA_FB_IN_DRAM;
   config.grab_mode    = CAMERA_GRAB_LATEST;
 
+  esp_err_t err = ESP_FAIL;
   for (int i = 0; i < 3; i++) {
-    esp_err_t err = esp_camera_init(&config);
+    err = esp_camera_init(&config);
     if (err == ESP_OK) {
-      Serial.println("Camera ready!");
+      sendToPhone('S', "Camera ready!");
       return true;
     }
     Serial.println("Camera attempt " + String(i + 1) + " failed: 0x" + String(err, HEX));
     esp_camera_deinit();
     delay(300);
   }
-  Serial.println("Camera failed.");
+  sendToPhone('E', "Camera failed (0x" + String(err, HEX) + ")");
   return false;
 }
 
 // ========== CAPTURE + GEMINI ==========
-String captureAndDescribe() {
-  sendToPhone("Capturing image...");
+String captureAndDescribe(bool &success) {
+  success = false;
+  sendToPhone('S', "Capturing image...");
 
   camera_fb_t* fb = esp_camera_fb_get();
   if (!fb) {
-    sendToPhone("Capture failed.");
-    return "";
+    return "Capture failed.";
   }
   Serial.printf("Image: %d bytes\n", fb->len);
 
-  sendToPhone("Encoding...");
+  sendToPhone('S', "Encoding...");
   String base64Image = base64_encode(fb->buf, fb->len);
   esp_camera_fb_return(fb);
 
-  sendToPhone("Asking Gemini...");
+  sendToPhone('S', "Asking Gemini...");
 
-  String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=";
+  String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";
   url += GEMINI_API_KEY;
 
   String payload = "{\"contents\":[{\"parts\":[";
@@ -206,6 +227,7 @@ String captureAndDescribe() {
       description = doc["candidates"][0]["content"]["parts"][0]["text"].as<String>();
       description.trim();
       Serial.println("Gemini: " + description);
+      success = true;
     } else {
       Serial.println("JSON error: " + String(error.c_str()));
       description = "Could not parse AI response.";
@@ -231,6 +253,7 @@ void setup() {
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new ServerCallbacks());
   BLEService* pService = pServer->createService(SERVICE_UUID);
+
   pCharacteristic = pService->createCharacteristic(
     CHAR_UUID,
     BLECharacteristic::PROPERTY_READ |
@@ -238,6 +261,7 @@ void setup() {
   );
   pCharacteristic->addDescriptor(new BLE2902());
   pCharacteristic->setValue("EyEar Ready");
+
   pService->start();
   BLEDevice::startAdvertising();
   Serial.println("BLE advertising. Waiting for phone...");
@@ -248,34 +272,23 @@ void setup() {
     Serial.print(".");
   }
   Serial.println();
-  sendToPhone("EyEar connected!");
+  sendToPhone('S', "EyEar connected!");
 
   // Step 3: WiFi
-  if (!connectWiFi()) {
-    sendToPhone("WiFi failed. Cannot continue.");
-    return;
-  }
-  sendToPhone("WiFi connected!");
+  wifiReady = connectWiFi();
 
   // Step 4: Camera
-  if (!initCamera()) {
-    sendToPhone("Camera failed. Cannot continue.");
-    return;
-  }
-  sendToPhone("Camera ready!");
+  scanSccbBus();
+  cameraReady = initCamera();
 
-  // Step 5: Capture and describe once
-  delay(1000);
-  String description = captureAndDescribe();
-  if (description.length() > 0) {
-    sendToPhone(description);
+  if (wifiReady && cameraReady) {
+    sendToPhone('S', "Ready.");
+  } else {
+    sendToPhone('E', "Ready with errors. Some features unavailable.");
   }
-
-  sendToPhone("Done! Reset device to scan again.");
 }
 
 // ========== LOOP ==========
 void loop() {
-  // Nothing - single shot in setup
-  delay(1000);
+  delay(10);
 }

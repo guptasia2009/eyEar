@@ -5,10 +5,9 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-const deviceName      = 'EyEar';
-const serviceUuid     = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
-const textCharUuid    = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
-const commandCharUuid = 'cba1d466-344c-4be3-ab3f-189f80dd7518';
+const deviceName   = 'EyEar';
+const serviceUuid  = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
+const textCharUuid = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
 
 void main() => runApp(const EyEarApp());
 
@@ -35,14 +34,15 @@ class _HomePageState extends State<HomePage> {
   final FlutterTts _tts = FlutterTts();
 
   BluetoothDevice? _device;
-  BluetoothCharacteristic? _cmdChar;
 
   bool _connected = false;
   bool _scanning = false;
-  bool _analyzing = false;
 
   String _message = 'Not connected.';
   String _buffer = '';
+  bool _speakDebug = false;
+  bool _isError = false;
+  final List<String> _debugLog = [];
 
   StreamSubscription? _scanSub;
   StreamSubscription? _notifySub;
@@ -101,7 +101,6 @@ class _HomePageState extends State<HomePage> {
             await c.setNotifyValue(true);
             _notifySub = c.onValueReceived.listen(_onChunkReceived);
           }
-          if (uuid == commandCharUuid) _cmdChar = c;
         }
       }
     }
@@ -113,22 +112,46 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // ESP32 sends the description in 20-byte chunks.
-  // A chunk shorter than 20 bytes means it's the last one.
+  // ESP32 sends "<type>:<message>" tagged and chunked to 20 bytes,
+  // followed by an empty notify marking the end of the message.
   void _onChunkReceived(List<int> bytes) {
-    _buffer += utf8.decode(bytes, allowMalformed: true);
-    if (bytes.length < 20) {
+    if (bytes.isEmpty) {
       final full = _buffer.trim();
       _buffer = '';
-      setState(() { _analyzing = false; _message = full; });
-      _tts.speak(full);
+      _routeMessage(full);
+      return;
     }
+    _buffer += utf8.decode(bytes, allowMalformed: true);
   }
 
-  Future<void> _triggerCapture() async {
-    if (_cmdChar == null) return;
-    setState(() { _analyzing = true; _message = 'Requesting scene description...'; });
-    await _cmdChar!.write(utf8.encode('1'), withoutResponse: false);
+  void _routeMessage(String full) {
+    if (full.length < 2) return;
+    final type = full[0];
+    final content = full.substring(2);
+    switch (type) {
+      case 'D':
+        setState(() {
+          _isError = false;
+          _message = content;
+        });
+        _tts.speak(content);
+        break;
+      case 'E':
+        setState(() {
+          _isError = true;
+          _message = content;
+          _debugLog.add(content);
+        });
+        _tts.speak(content);
+        break;
+      case 'S':
+      default:
+        setState(() {
+          _debugLog.add(content);
+        });
+        if (_speakDebug) _tts.speak(content);
+        break;
+    }
   }
 
   Future<void> _disconnect() async {
@@ -137,7 +160,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _connected = false;
       _device = null;
-      _cmdChar = null;
       _message = 'Disconnected.';
     });
   }
@@ -173,17 +195,27 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Speak debug messages'),
+              value: _speakDebug,
+              onChanged: (v) => setState(() => _speakDebug = v),
+            ),
 
             // Message display
             Expanded(
+              flex: 3,
               child: Card(
+                color: _isError ? Colors.red.shade900 : null,
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Scene Description', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                      Text(
+                        _isError ? 'Error' : 'Scene Description',
+                        style: const TextStyle(fontSize: 13, color: Colors.grey),
+                      ),
                       const SizedBox(height: 12),
                       Expanded(
                         child: SingleChildScrollView(
@@ -205,6 +237,35 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
+            const SizedBox(height: 12),
+
+            // Debug log
+            Expanded(
+              flex: 2,
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Debug Log', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: ListView.builder(
+                          reverse: true,
+                          itemCount: _debugLog.length,
+                          itemBuilder: (context, index) {
+                            final entry = _debugLog[_debugLog.length - 1 - index];
+                            return Text(entry, style: const TextStyle(fontSize: 13));
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
             const SizedBox(height: 16),
 
             // Connect / Disconnect
@@ -218,18 +279,6 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 backgroundColor: _connected ? Colors.redAccent : null,
               ),
-            ),
-
-            const SizedBox(height: 12),
-
-            // Describe scene
-            FilledButton.icon(
-              onPressed: (_connected && !_analyzing) ? _triggerCapture : null,
-              icon: _analyzing
-                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.camera_alt),
-              label: Text(_analyzing ? 'Analyzing...' : 'Describe Scene'),
-              style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
             ),
           ],
         ),

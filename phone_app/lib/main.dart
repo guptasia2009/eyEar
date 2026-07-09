@@ -5,6 +5,8 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'cortex_screen.dart';
+
 const deviceName   = 'EyEar';
 const serviceUuid  = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
 const textCharUuid = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
@@ -19,7 +21,9 @@ class EyEarApp extends StatelessWidget {
       title: 'eyEar',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(useMaterial3: true),
-      home: const HomePage(),
+      // cortex-phone-camera branch: phone-camera debug screen is home.
+      // Switch back to HomePage() to return to the BLE flow.
+      home: const CortexScreen(),
     );
   }
 }

@@ -1,0 +1,214 @@
+{
+  "scenarios": [
+    {
+      "id": "find_empty_table",
+      "category": "dining",
+      "trigger_description": "The user wants to find an empty table and chair to sit at in a room such as a cafeteria or restaurant.",
+      "prompt": "Describe the table occupancy details for a visually impaired person so that they can navigate to an empty chair. Keep it very short and brief. Do not say anything like 'here is the description'; just the description. If there is an empty chair, let them know how to get there in detail. Use feet as the metric for distance. If there are multiple tables, only talk about the closest one. Say it like: 'There is a table x feet in front/right/left with y chairs empty. The nearest empty chair is <directions> away.'",
+      "example_output": "There is a table x feet in front/right/left with y chairs empty. The nearest empty chair is x feet away in the y direction."
+    },
+    {
+      "id": "describe_room",
+      "category": "navigation",
+      "trigger_description": "The user wants a general layout of the room and the objects in it.",
+      "prompt": "Describe what's in the room, giving each object's distance in feet and clock position. Example: This room has a table x feet away at 3 o'clock, an empty chair x feet away at 5 o'clock.",
+      "example_output": "You are in a room with [object 1] x feet away at [clock position], [object 2] x feet away at [clock position]."
+    },
+    {
+      "id": "count_people",
+      "category": "public_spaces",
+      "trigger_description": "The user wants to know how many people are in the room.",
+      "prompt": "Based on this image, tell the user how many people are in the room.",
+      "example_output": "This room has X people in it."
+    },
+    {
+      "id": "find_empty_seat_transit",
+      "category": "public_spaces",
+      "trigger_description": "The user is on a bus or train and wants to find an empty seat.",
+      "prompt": "Based on this image of a bus or train, tell the user where there is an empty seat, giving clock position and distance in feet.",
+      "example_output": "There is an empty seat at [clock position]."
+    },
+    {
+      "id": "find_queue_end",
+      "category": "public_spaces",
+      "trigger_description": "The user needs to find the end of a line or queue so they can join it.",
+      "prompt": "Based on this image, tell the user where the end of the queue is, with clock position and distance in feet.",
+      "example_output": "The end of the queue is x feet away at [clock position]."
+    },
+    {
+      "id": "find_door",
+      "category": "navigation",
+      "trigger_description": "The user wants to locate a door, entrance, or exit.",
+      "prompt": "Based on this image, tell the user where there is an entrance or exit, with clock position and distance in feet, and if possible, where it leads.",
+      "example_output": "At [clock position], there is a door that leads to [where the door leads]."
+    },
+    {
+      "id": "elevator_floor",
+      "category": "navigation",
+      "trigger_description": "The user is waiting for an elevator and wants to know which floor it is on and where the call button is.",
+      "prompt": "Based on this image, tell the user what floor the elevator indicator shows and where the call button is, with clock position and distance in feet.",
+      "example_output": "The elevator is currently on floor [number], and the call button is x feet away at [clock position]."
+    },
+    {
+      "id": "read_crosswalk_signal",
+      "category": "navigation",
+      "trigger_description": "The user is at a crosswalk and wants to know what the pedestrian signal shows.",
+      "prompt": "Read the crosswalk signal countdown or walk/don't-walk state from the image. Do NOT tell the user it is safe to cross; only report what the signal displays. If the signal is unclear or not fully visible, say so explicitly rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "You have X seconds left to cross."
+    },
+    {
+      "id": "detect_stairs",
+      "category": "navigation",
+      "trigger_description": "There are stairs ahead of the user.",
+      "prompt": "Based on this image, tell the user how many stairs there are and at what clock position and distance in feet. If you cannot clearly count the stairs or judge the distance, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "There are X stairs at [clock position]."
+    },
+    {
+      "id": "find_trash_can",
+      "category": "public_spaces",
+      "trigger_description": "The user wants to throw something away or recycle it.",
+      "prompt": "Based on this image, tell the user where there is a trash can or recycling bin, with clock position and distance in feet.",
+      "example_output": "There is a trash/recycling can X feet away at [clock position]."
+    },
+    {
+      "id": "path_clear",
+      "category": "navigation",
+      "trigger_description": "The user wants to know whether the walkway ahead is clear or blocked.",
+      "prompt": "Based on this image, tell the user whether the pathway ahead is clear and for how many feet; if it is blocked, say what blocks it and where, using clock position and distance in feet.",
+      "example_output": "There is a clear walkway ahead for x feet."
+    },
+    {
+      "id": "walking_traffic_direction",
+      "category": "navigation",
+      "trigger_description": "The user wants to know which direction the surrounding foot traffic is moving.",
+      "prompt": "Based on this image, tell the user the direction of walking traffic using clock positions.",
+      "example_output": "The flow of walking traffic is toward [clock position]."
+    },
+    {
+      "id": "describe_plate",
+      "category": "dining",
+      "trigger_description": "The user has a plate of food in front of them and wants to know what is where.",
+      "prompt": "Describe the items on the user's plate using clock positions.",
+      "example_output": "Your plate has: [Food] at [clock position]."
+    },
+    {
+      "id": "identify_container_contents",
+      "category": "dining",
+      "trigger_description": "The user wants to know what is in a bowl, cup, or other container.",
+      "prompt": "Based on this image, tell the user what any container of food or drink contains.",
+      "example_output": "This glass/bowl contains [contents]."
+    },
+    {
+      "id": "food_doneness",
+      "category": "dining",
+      "trigger_description": "The user wants to know if their food is fully cooked.",
+      "prompt": "Based on this image, tell the user if the food appears cooked, undercooked, or overcooked. Express uncertainty if unclear - never guess confidently about food safety; a confident wrong answer could make the user ill.",
+      "example_output": "This [food] appears [cooked/undercooked]."
+    },
+    {
+      "id": "read_menu",
+      "category": "dining",
+      "trigger_description": "The user is holding a physical menu up to the camera.",
+      "prompt": "Read the menu items in this image to the user.",
+      "example_output": "This menu contains [food names]."
+    },
+    {
+      "id": "detect_spill",
+      "category": "dining",
+      "trigger_description": "Food or drink may have been spilled near the user.",
+      "prompt": "Based on this image, tell the user if there is a spill or mess and where it is, plus where napkins or tissues are if visible, with clock positions and distance in feet.",
+      "example_output": "[Food] has spilled; tissues are x feet away at [clock position]."
+    },
+    {
+      "id": "stove_burner_status",
+      "category": "home",
+      "trigger_description": "The user wants to know whether a stove burner is on.",
+      "prompt": "Based on this image, tell the user if the burner or stove appears to be on and where the controls are, with clock position and distance in feet. Express uncertainty if unclear rather than guessing - a wrong answer about a hot stove could physically endanger the user.",
+      "example_output": "The burner is on; the controls are x feet away at [clock position]."
+    },
+    {
+      "id": "read_food_label",
+      "category": "shopping",
+      "trigger_description": "The user is holding a packaged food item and wants its nutritional information.",
+      "prompt": "Read the nutritional label of the item the user is holding.",
+      "example_output": "This item contains X calories, X% fat, etc."
+    },
+    {
+      "id": "lights_status",
+      "category": "home",
+      "trigger_description": "The user wants to know if the lights are on or off.",
+      "prompt": "Based on this image, tell the user if the lights are on or off, and where the switch is if visible, with clock position and distance in feet.",
+      "example_output": "The lights are [on/off]. The switch is x feet away at [clock position]."
+    },
+    {
+      "id": "read_mail",
+      "category": "reading",
+      "trigger_description": "The user is holding mail or a document up to the camera to be read.",
+      "prompt": "Read the mail or document in this image to the user.",
+      "example_output": "The mail says [details]."
+    },
+    {
+      "id": "detect_appliance",
+      "category": "home",
+      "trigger_description": "The user wants to find and use a nearby appliance.",
+      "prompt": "Based on this image, tell the user if there is an appliance nearby, with clock position and distance in feet, then briefly explain how to use it.",
+      "example_output": "There is a [appliance] x feet away at [clock position]; it is used by [method]."
+    },
+    {
+      "id": "read_clock",
+      "category": "reading",
+      "trigger_description": "There is a clock in view and the user wants to know the time.",
+      "prompt": "If there is an analog or digital clock in this image, read the time to the user.",
+      "example_output": "The time is [time]."
+    },
+    {
+      "id": "locate_desk_items",
+      "category": "home",
+      "trigger_description": "The user wants to know what items are on a desk, table, or counter.",
+      "prompt": "Describe the items on the desk, table, or counter with clock positions and distance in feet.",
+      "example_output": "This desk has: [items]."
+    },
+    {
+      "id": "read_document_title",
+      "category": "reading",
+      "trigger_description": "There is a file or document on a desk and the user wants to know what it is.",
+      "prompt": "If there is a file or document on the desk in this image, read its title aloud.",
+      "example_output": "The file at [clock position] reads [title]."
+    },
+    {
+      "id": "read_price_tag",
+      "category": "shopping",
+      "trigger_description": "The user is holding a store item and wants to know its price.",
+      "prompt": "Read the price tag of the item the user is holding.",
+      "example_output": "[Product] costs x dollars."
+    },
+    {
+      "id": "atm_status",
+      "category": "public_spaces",
+      "trigger_description": "The user wants to use an ATM and needs to know if it is free.",
+      "prompt": "Based on this image, tell the user if the ATM is free or occupied, and if there is a queue.",
+      "example_output": "The ATM is free / not free."
+    },
+    {
+      "id": "store_open_status",
+      "category": "shopping",
+      "trigger_description": "The user wants to know if a store is open or closed.",
+      "prompt": "Based on this image, tell the user if the store appears open or closed, using visible signs, lights, or gates.",
+      "example_output": "[Store] is open / closed."
+    },
+    {
+      "id": "payment_result",
+      "category": "shopping",
+      "trigger_description": "The user has just paid at a card terminal and wants to know if the transaction went through.",
+      "prompt": "Read the payment terminal screen in this image and tell the user if the transaction succeeded or failed.",
+      "example_output": "The transaction was successful."
+    },
+    {
+      "id": "general_description",
+      "category": "general",
+      "trigger_description": "No other scenario matches the image.",
+      "prompt": "Give a brief, actionable description of the scene for a visually impaired person. Use clock positions and distances in feet. Prioritize obstacles, hazards, and useful objects. No preamble - start directly with the description.",
+      "example_output": "There is a [object] x feet away at [clock position]."
+    }
+  ]
+}

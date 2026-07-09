@@ -33,4 +33,4 @@ OLD/OLD-RASPBERRYPI/config.py
 .vs/
 
 # API keys
-phone_app/lib/secrets.dart
+secrets.dart

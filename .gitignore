@@ -34,3 +34,6 @@ OLD/OLD-RASPBERRYPI/config.py
 
 # API keys
 secrets.dart
+
+# Local planning docs
+docs/superpowers/

@@ -3,210 +3,210 @@
     {
       "id": "find_empty_table",
       "category": "dining",
-      "trigger_description": "The user wants to find an empty table and chair to sit at in a room such as a cafeteria or restaurant.",
+      "trigger_description": "The image shows one or more dining or cafeteria tables with chairs at medium distance, some possibly unoccupied.",
       "prompt": "Describe the table occupancy details for a visually impaired person so that they can navigate to an empty chair. Keep it very short and brief. Do not say anything like 'here is the description'; just the description. If there is an empty chair, let them know how to get there in detail. Use feet as the metric for distance. If there are multiple tables, only talk about the closest one. Say it like: 'There is a table x feet in front/right/left with y chairs empty. The nearest empty chair is <directions> away.'",
       "example_output": "There is a table x feet in front/right/left with y chairs empty. The nearest empty chair is x feet away in the y direction."
     },
     {
       "id": "describe_room",
       "category": "navigation",
-      "trigger_description": "The user wants a general layout of the room and the objects in it.",
+      "trigger_description": "A wide indoor view of a room with multiple pieces of furniture and no single dominant subject.",
       "prompt": "Describe what's in the room, giving each object's distance in feet and clock position. Example: This room has a table x feet away at 3 o'clock, an empty chair x feet away at 5 o'clock.",
       "example_output": "You are in a room with [object 1] x feet away at [clock position], [object 2] x feet away at [clock position]."
     },
     {
       "id": "count_people",
       "category": "public_spaces",
-      "trigger_description": "The user wants to know how many people are in the room.",
+      "trigger_description": "Several people are visible in an indoor space, and the people are the most prominent element of the image.",
       "prompt": "Based on this image, tell the user how many people are in the room.",
       "example_output": "This room has X people in it."
     },
     {
       "id": "find_empty_seat_transit",
       "category": "public_spaces",
-      "trigger_description": "The user is on a bus or train and wants to find an empty seat.",
+      "trigger_description": "The interior of a bus or train, with rows of transit seating visible.",
       "prompt": "Based on this image of a bus or train, tell the user where there is an empty seat, giving clock position and distance in feet.",
       "example_output": "There is an empty seat at [clock position]."
     },
     {
       "id": "find_queue_end",
       "category": "public_spaces",
-      "trigger_description": "The user needs to find the end of a line or queue so they can join it.",
+      "trigger_description": "A line of people queuing, such as at a counter, checkout, or service desk.",
       "prompt": "Based on this image, tell the user where the end of the queue is, with clock position and distance in feet.",
       "example_output": "The end of the queue is x feet away at [clock position]."
     },
     {
       "id": "find_door",
       "category": "navigation",
-      "trigger_description": "The user wants to locate a door, entrance, or exit.",
+      "trigger_description": "A door, doorway, entrance, or exit is a prominent element of the image.",
       "prompt": "Based on this image, tell the user where there is an entrance or exit, with clock position and distance in feet, and if possible, where it leads.",
       "example_output": "At [clock position], there is a door that leads to [where the door leads]."
     },
     {
       "id": "elevator_floor",
       "category": "navigation",
-      "trigger_description": "The user is waiting for an elevator and wants to know which floor it is on and where the call button is.",
+      "trigger_description": "Elevator doors, an elevator floor-indicator display, or a call-button panel is visible.",
       "prompt": "Based on this image, tell the user what floor the elevator indicator shows and where the call button is, with clock position and distance in feet.",
       "example_output": "The elevator is currently on floor [number], and the call button is x feet away at [clock position]."
     },
     {
       "id": "read_crosswalk_signal",
       "category": "navigation",
-      "trigger_description": "The user is at a crosswalk and wants to know what the pedestrian signal shows.",
+      "trigger_description": "An outdoor street view featuring a pedestrian crossing signal, walk/don't-walk light, or countdown display.",
       "prompt": "Read the crosswalk signal countdown or walk/don't-walk state from the image. Do NOT tell the user it is safe to cross; only report what the signal displays. If the signal is unclear or not fully visible, say so explicitly rather than guessing - a wrong answer could physically endanger the user.",
       "example_output": "You have X seconds left to cross."
     },
     {
       "id": "detect_stairs",
       "category": "navigation",
-      "trigger_description": "There are stairs ahead of the user.",
+      "trigger_description": "Stairs, steps, or a staircase are visible ahead in the walking path.",
       "prompt": "Based on this image, tell the user how many stairs there are and at what clock position and distance in feet. If you cannot clearly count the stairs or judge the distance, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
       "example_output": "There are X stairs at [clock position]."
     },
     {
       "id": "find_trash_can",
       "category": "public_spaces",
-      "trigger_description": "The user wants to throw something away or recycle it.",
+      "trigger_description": "A trash can, garbage bin, or recycling bin is a prominent object in the image.",
       "prompt": "Based on this image, tell the user where there is a trash can or recycling bin, with clock position and distance in feet.",
       "example_output": "There is a trash/recycling can X feet away at [clock position]."
     },
     {
       "id": "path_clear",
       "category": "navigation",
-      "trigger_description": "The user wants to know whether the walkway ahead is clear or blocked.",
+      "trigger_description": "A view down a walkway, corridor, sidewalk, or path stretching ahead of the camera.",
       "prompt": "Based on this image, tell the user whether the pathway ahead is clear and for how many feet; if it is blocked, say what blocks it and where, using clock position and distance in feet.",
       "example_output": "There is a clear walkway ahead for x feet."
     },
     {
       "id": "walking_traffic_direction",
       "category": "navigation",
-      "trigger_description": "The user wants to know which direction the surrounding foot traffic is moving.",
+      "trigger_description": "Multiple pedestrians in motion dominate the scene, such as a busy sidewalk, concourse, or hallway.",
       "prompt": "Based on this image, tell the user the direction of walking traffic using clock positions.",
       "example_output": "The flow of walking traffic is toward [clock position]."
     },
     {
       "id": "describe_plate",
       "category": "dining",
-      "trigger_description": "The user has a plate of food in front of them and wants to know what is where.",
+      "trigger_description": "The image is dominated by a plate, bowl, or tray of food at close range.",
       "prompt": "Describe the items on the user's plate using clock positions.",
       "example_output": "Your plate has: [Food] at [clock position]."
     },
     {
       "id": "identify_container_contents",
       "category": "dining",
-      "trigger_description": "The user wants to know what is in a bowl, cup, or other container.",
+      "trigger_description": "A single cup, glass, bowl, or other container is the dominant close-range subject.",
       "prompt": "Based on this image, tell the user what any container of food or drink contains.",
       "example_output": "This glass/bowl contains [contents]."
     },
     {
       "id": "food_doneness",
       "category": "dining",
-      "trigger_description": "The user wants to know if their food is fully cooked.",
+      "trigger_description": "A close-up of food being cooked or prepared, such as on a pan, grill, or baking tray.",
       "prompt": "Based on this image, tell the user if the food appears cooked, undercooked, or overcooked. Express uncertainty if unclear - never guess confidently about food safety; a confident wrong answer could make the user ill.",
       "example_output": "This [food] appears [cooked/undercooked]."
     },
     {
       "id": "read_menu",
       "category": "dining",
-      "trigger_description": "The user is holding a physical menu up to the camera.",
+      "trigger_description": "A restaurant menu held up close, filling most of the frame with a list of dishes and prices.",
       "prompt": "Read the menu items in this image to the user.",
       "example_output": "This menu contains [food names]."
     },
     {
       "id": "detect_spill",
       "category": "dining",
-      "trigger_description": "Food or drink may have been spilled near the user.",
+      "trigger_description": "Spilled food or liquid is visible on a table, counter, or floor.",
       "prompt": "Based on this image, tell the user if there is a spill or mess and where it is, plus where napkins or tissues are if visible, with clock positions and distance in feet.",
       "example_output": "[Food] has spilled; tissues are x feet away at [clock position]."
     },
     {
       "id": "stove_burner_status",
       "category": "home",
-      "trigger_description": "The user wants to know whether a stove burner is on.",
+      "trigger_description": "A stovetop, burner, or cooktop with its control knobs is the main subject.",
       "prompt": "Based on this image, tell the user if the burner or stove appears to be on and where the controls are, with clock position and distance in feet. Express uncertainty if unclear rather than guessing - a wrong answer about a hot stove could physically endanger the user.",
       "example_output": "The burner is on; the controls are x feet away at [clock position]."
     },
     {
       "id": "read_food_label",
       "category": "shopping",
-      "trigger_description": "The user is holding a packaged food item and wants its nutritional information.",
+      "trigger_description": "A packaged food item held up close, showing its nutrition facts or ingredients label.",
       "prompt": "Read the nutritional label of the item the user is holding.",
       "example_output": "This item contains X calories, X% fat, etc."
     },
     {
       "id": "lights_status",
       "category": "home",
-      "trigger_description": "The user wants to know if the lights are on or off.",
+      "trigger_description": "A light switch, lamp, or ceiling light is prominent, or the room is notably dark or dim.",
       "prompt": "Based on this image, tell the user if the lights are on or off, and where the switch is if visible, with clock position and distance in feet.",
       "example_output": "The lights are [on/off]. The switch is x feet away at [clock position]."
     },
     {
       "id": "read_mail",
       "category": "reading",
-      "trigger_description": "The user is holding mail or a document up to the camera to be read.",
+      "trigger_description": "An envelope, letter, or printed document held up close, filling most of the frame with text.",
       "prompt": "Read the mail or document in this image to the user.",
       "example_output": "The mail says [details]."
     },
     {
       "id": "detect_appliance",
       "category": "home",
-      "trigger_description": "The user wants to find and use a nearby appliance.",
+      "trigger_description": "A household appliance (microwave, kettle, washing machine, coffee maker, etc.) is the dominant subject at medium range.",
       "prompt": "Based on this image, tell the user if there is an appliance nearby, with clock position and distance in feet, then briefly explain how to use it.",
       "example_output": "There is a [appliance] x feet away at [clock position]; it is used by [method]."
     },
     {
       "id": "read_clock",
       "category": "reading",
-      "trigger_description": "There is a clock in view and the user wants to know the time.",
+      "trigger_description": "An analog or digital clock face is clearly visible in the image.",
       "prompt": "If there is an analog or digital clock in this image, read the time to the user.",
       "example_output": "The time is [time]."
     },
     {
       "id": "locate_desk_items",
       "category": "home",
-      "trigger_description": "The user wants to know what items are on a desk, table, or counter.",
+      "trigger_description": "A desk, tabletop, or counter surface with several objects on it fills most of the frame.",
       "prompt": "Describe the items on the desk, table, or counter with clock positions and distance in feet.",
       "example_output": "This desk has: [items]."
     },
     {
       "id": "read_document_title",
       "category": "reading",
-      "trigger_description": "There is a file or document on a desk and the user wants to know what it is.",
+      "trigger_description": "A folder, file, or document lying on a desk with its title visible, seen at a distance rather than held up.",
       "prompt": "If there is a file or document on the desk in this image, read its title aloud.",
       "example_output": "The file at [clock position] reads [title]."
     },
     {
       "id": "read_price_tag",
       "category": "shopping",
-      "trigger_description": "The user is holding a store item and wants to know its price.",
+      "trigger_description": "A retail product or shelf label shown close up with a visible price.",
       "prompt": "Read the price tag of the item the user is holding.",
       "example_output": "[Product] costs x dollars."
     },
     {
       "id": "atm_status",
       "category": "public_spaces",
-      "trigger_description": "The user wants to use an ATM and needs to know if it is free.",
+      "trigger_description": "An ATM or cash machine is visible, possibly with people near it.",
       "prompt": "Based on this image, tell the user if the ATM is free or occupied, and if there is a queue.",
       "example_output": "The ATM is free / not free."
     },
     {
       "id": "store_open_status",
       "category": "shopping",
-      "trigger_description": "The user wants to know if a store is open or closed.",
+      "trigger_description": "A storefront, shop entrance, or shop window viewed from outside, possibly with signs, lights, or shutters.",
       "prompt": "Based on this image, tell the user if the store appears open or closed, using visible signs, lights, or gates.",
       "example_output": "[Store] is open / closed."
     },
     {
       "id": "payment_result",
       "category": "shopping",
-      "trigger_description": "The user has just paid at a card terminal and wants to know if the transaction went through.",
+      "trigger_description": "A card payment terminal or checkout screen shown close up, displaying a transaction status.",
       "prompt": "Read the payment terminal screen in this image and tell the user if the transaction succeeded or failed.",
       "example_output": "The transaction was successful."
     },
     {
       "id": "general_description",
       "category": "general",
-      "trigger_description": "No other scenario matches the image.",
+      "trigger_description": "The image does not clearly match any other scenario's visual signature.",
       "prompt": "Give a brief, actionable description of the scene for a visually impaired person. Use clock positions and distances in feet. Prioritize obstacles, hazards, and useful objects. No preamble - start directly with the description.",
       "example_output": "There is a [object] x feet away at [clock position]."
     }

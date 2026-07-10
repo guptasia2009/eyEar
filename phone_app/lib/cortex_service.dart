@@ -28,12 +28,14 @@ class CortexScenario {
 }
 
 class CortexResult {
+  final String observation;
   final String scenarioId;
   final String response;
   final int latencyMs;
   final bool usedFallback;
 
   CortexResult({
+    required this.observation,
     required this.scenarioId,
     required this.response,
     required this.latencyMs,
@@ -76,16 +78,32 @@ class CortexService {
       ..writeln(
           'You are Cortex, the scene-understanding engine of an assistive '
           'wearable for visually impaired users. You receive one photo taken '
-          'from the user\'s point of view.')
+          'from the user\'s point of view. You cannot observe the user\'s '
+          'intent - route based only on what the image shows.')
       ..writeln()
-      ..writeln('Follow these two steps:')
-      ..writeln('1. Decide which ONE scenario below best matches what the '
-          'image shows and what the user most plausibly needs. If nothing '
-          'matches well, choose "$_fallbackScenarioId".')
-      ..writeln('2. Generate the response following ONLY that scenario\'s '
-          'prompt and format. Do not mix formats from other scenarios.')
+      ..writeln('Follow these three steps, in order:')
+      ..writeln('1. observation: Write one sentence describing the dominant '
+          'subject of the image.')
+      ..writeln('2. scenario_id: Pick the ONE scenario below whose visual '
+          'signature best matches your observation.')
+      ..writeln('3. response: Generate the response following ONLY that '
+          'scenario\'s prompt and format. Do not mix formats from other '
+          'scenarios.')
       ..writeln()
-      ..writeln('Scenarios, grouped by category:');
+      ..writeln('Selection rules:')
+      ..writeln('- Prefer the most specific matching scenario over a general '
+          'one.')
+      ..writeln('- An object held up close to the camera that fills the frame '
+          '(a menu, mail or a document, a price tag, a packaged food label) '
+          'signals a reading-type scenario for that object, not a room '
+          'description.')
+      ..writeln('- Choose "describe_room" only for a wide indoor view with no '
+          'dominant specific subject.')
+      ..writeln('- Choose "$_fallbackScenarioId" only as a rare last resort '
+          'when nothing else fits at all.')
+      ..writeln()
+      ..writeln('Scenarios, grouped by category (each lists the visual '
+          'signature of the images it applies to):');
 
     final categories = <String, List<CortexScenario>>{};
     for (final s in scenarios) {
@@ -119,10 +137,11 @@ class CortexService {
         final result = await _callOnce(jpegBytes);
         stopwatch.stop();
         return CortexResult(
-          scenarioId: result.$1,
-          response: result.$2,
+          observation: result.$1,
+          scenarioId: result.$2,
+          response: result.$3,
           latencyMs: stopwatch.elapsedMilliseconds,
-          usedFallback: result.$3,
+          usedFallback: result.$4,
         );
       } catch (e) {
         firstError = e;
@@ -131,7 +150,7 @@ class CortexService {
     throw CortexException('Both attempts failed: $firstError');
   }
 
-  Future<(String, String, bool)> _callOnce(Uint8List jpegBytes) async {
+  Future<(String, String, String, bool)> _callOnce(Uint8List jpegBytes) async {
     // TODO: Gemini explicit context caching for the system prompt would go
     // here (cachedContents API). Skipped for now: the Dart-side REST call
     // would need cache lifecycle management, and Gemini 2.5 models already
@@ -159,14 +178,23 @@ class CortexService {
         }
       ],
       'generationConfig': {
+        // Disable thinking: this is a match-and-format task, and the added
+        // seconds of latency matter more than reasoning depth here.
+        'thinkingConfig': {'thinkingBudget': 0},
+        // Deterministic routing.
+        'temperature': 0,
         'responseMimeType': 'application/json',
         'responseSchema': {
           'type': 'OBJECT',
           'properties': {
+            // observation first: the model describes the dominant subject
+            // before committing to a scenario, which grounds the routing.
+            'observation': {'type': 'STRING'},
             'scenario_id': {'type': 'STRING'},
             'response': {'type': 'STRING'},
           },
-          'required': ['scenario_id', 'response'],
+          'required': ['observation', 'scenario_id', 'response'],
+          'propertyOrdering': ['observation', 'scenario_id', 'response'],
         },
       },
     });
@@ -191,6 +219,7 @@ class CortexService {
     }
 
     final parsed = jsonDecode(text) as Map<String, dynamic>;
+    final observation = parsed['observation'] as String? ?? '';
     var scenarioId = parsed['scenario_id'] as String? ?? '';
     final answer = parsed['response'] as String? ?? '';
     if (answer.isEmpty) {
@@ -202,6 +231,6 @@ class CortexService {
       scenarioId = _fallbackScenarioId;
       usedFallback = true;
     }
-    return (scenarioId, answer, usedFallback);
+    return (observation, scenarioId, answer, usedFallback);
   }
 }

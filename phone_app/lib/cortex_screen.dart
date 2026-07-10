@@ -46,6 +46,7 @@ class _CortexScreenState extends State<CortexScreen> {
       final file = File('${dir.path}/cortex_log.jsonl');
       final line = jsonEncode({
         'timestamp': DateTime.now().toIso8601String(),
+        'observation': result.observation,
         'scenario_id': result.scenarioId,
         'latency_ms': result.latencyMs,
         'used_fallback': result.usedFallback,

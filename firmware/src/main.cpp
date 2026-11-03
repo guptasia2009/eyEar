@@ -159,8 +159,8 @@ bool initCamera() {
   config.pin_pclk     = 13;
   config.pin_vsync    = 38;
   config.pin_href     = 47;
-  config.pin_sscb_sda = 40;
-  config.pin_sscb_scl = 39;
+  config.pin_sccb_sda = 40;
+  config.pin_sccb_scl = 39;
   config.pin_pwdn     = -1;
   config.pin_reset    = -1;
   config.xclk_freq_hz = 20000000;

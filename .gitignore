@@ -25,3 +25,12 @@ Thumbs.db
 
 secrets.h
 OLD/OLD-RASPBERRYPI/config.py
+
+# PlatformIO build output
+.pio/
+
+# Visual Studio
+.vs/
+
+# API keys
+phone_app/lib/secrets.dart

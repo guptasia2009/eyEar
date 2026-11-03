@@ -1,36 +1,17 @@
-# Python virtual environments
-venv/
-.venv/
-env/
-ENV/
-env.bak/
-venv.bak/
+# API keys and WiFi credentials
+secrets.h
+secrets.dart
 
-# If you named them something custom
-*/venv/
-*/.venv/
+# PlatformIO build output
+.pio/
 
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# VSCode
+# Editors
 .vscode/
+.vs/
 
 # OS files
 .DS_Store
 Thumbs.db
 
-secrets.h
-OLD/OLD-RASPBERRYPI/config.py
-
-# PlatformIO build output
-.pio/
-
-# Visual Studio
-.vs/
-
-# API keys
-phone_app/lib/secrets.dart
+# Local planning docs
+docs/superpowers/

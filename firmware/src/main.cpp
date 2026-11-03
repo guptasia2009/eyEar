@@ -1,5 +1,6 @@
 #include "esp_camera.h"
 #include <WiFi.h>
+#include <WebServer.h>
 #include <HTTPClient.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
@@ -18,8 +19,15 @@ BLEServer* pServer = NULL;
 BLECharacteristic* pCharacteristic = NULL;
 bool deviceConnected = false;
 
+WebServer webServer(80);
+
 bool wifiReady = false;
 bool cameraReady = false;
+
+bool wasConnected = false;
+unsigned long lastCaptureTime = 0;
+const unsigned long CAPTURE_INTERVAL_MS = 60000;
+const bool ENABLE_AUTO_CAPTURE = false;
 
 // ========== BASE64 ==========
 static const char base64_chars[] =
@@ -151,8 +159,8 @@ bool initCamera() {
   config.pin_pclk     = 13;
   config.pin_vsync    = 38;
   config.pin_href     = 47;
-  config.pin_sscb_sda = 40;
-  config.pin_sscb_scl = 39;
+  config.pin_sccb_sda = 40;
+  config.pin_sccb_scl = 39;
   config.pin_pwdn     = -1;
   config.pin_reset    = -1;
   config.xclk_freq_hz = 20000000;
@@ -160,7 +168,7 @@ bool initCamera() {
   config.frame_size   = FRAMESIZE_QVGA;
   config.jpeg_quality = 12;
   config.fb_count     = 1;
-  config.fb_location  = CAMERA_FB_IN_DRAM;
+  config.fb_location  = CAMERA_FB_IN_PSRAM;
   config.grab_mode    = CAMERA_GRAB_LATEST;
 
   esp_err_t err = ESP_FAIL;
@@ -176,6 +184,32 @@ bool initCamera() {
   }
   sendToPhone('E', "Camera failed (0x" + String(err, HEX) + ")");
   return false;
+}
+
+// ========== CAMERA PREVIEW WEB PAGE ==========
+void handleRoot() {
+  String html =
+    "<html><body style='background:#000;margin:0'>"
+    "<img id='shot' src='/capture' style='width:100%'>"
+    "<script>"
+    "setInterval(function(){"
+    "document.getElementById('shot').src='/capture?t='+Date.now();"
+    "},2000);"
+    "</script></body></html>";
+  webServer.send(200, "text/html", html);
+}
+
+void handleCapture() {
+  camera_fb_t* fb = esp_camera_fb_get();
+  if (!fb) {
+    webServer.send(503, "text/plain", "Capture failed");
+    return;
+  }
+  WiFiClient client = webServer.client();
+  String header = "HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\nContent-Length: " + String(fb->len) + "\r\nConnection: close\r\n\r\n";
+  client.print(header);
+  client.write(fb->buf, fb->len);
+  esp_camera_fb_return(fb);
 }
 
 // ========== CAPTURE + GEMINI ==========
@@ -282,6 +316,10 @@ void setup() {
   cameraReady = initCamera();
 
   if (wifiReady && cameraReady) {
+    webServer.on("/", handleRoot);
+    webServer.on("/capture", handleCapture);
+    webServer.begin();
+    sendToPhone('S', "Preview: http://" + WiFi.localIP().toString() + "/");
     sendToPhone('S', "Ready.");
   } else {
     sendToPhone('E', "Ready with errors. Some features unavailable.");
@@ -290,5 +328,19 @@ void setup() {
 
 // ========== LOOP ==========
 void loop() {
+  if (wifiReady && cameraReady) {
+    webServer.handleClient();
+  }
+
+  if (ENABLE_AUTO_CAPTURE && deviceConnected && wifiReady && cameraReady) {
+    bool justConnected = !wasConnected;
+    if (justConnected || millis() - lastCaptureTime >= CAPTURE_INTERVAL_MS) {
+      lastCaptureTime = millis();
+      bool success = false;
+      String result = captureAndDescribe(success);
+      sendToPhone(success ? 'D' : 'E', result);
+    }
+  }
+  wasConnected = deviceConnected;
   delay(10);
 }

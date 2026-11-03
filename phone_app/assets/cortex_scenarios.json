@@ -1,0 +1,809 @@
+{
+  "scenarios": [
+    {
+      "id": "find_empty_table",
+      "category": "dining",
+      "trigger_description": "The image shows one or more dining or cafeteria tables with chairs at medium distance, some possibly unoccupied.",
+      "prompt": "Describe the table occupancy details for a visually impaired person so that they can navigate to an empty chair. Keep it very short and brief. Do not say anything like 'here is the description'; just the description. If there is an empty chair, let them know how to get there in detail. Use feet as the metric for distance. If there are multiple tables, only talk about the closest one. Say it like: 'There is a table x feet in front/right/left with y chairs empty. The nearest empty chair is <directions> away.'",
+      "example_output": "There is a table x feet in front/right/left with y chairs empty. The nearest empty chair is x feet away in the y direction."
+    },
+    {
+      "id": "describe_room",
+      "category": "navigation",
+      "trigger_description": "A wide indoor view of a room with multiple pieces of furniture and no single dominant subject.",
+      "prompt": "Describe what's in the room, giving each object's distance in feet and clock position. Example: This room has a table x feet away at 3 o'clock, an empty chair x feet away at 5 o'clock.",
+      "example_output": "You are in a room with [object 1] x feet away at [clock position], [object 2] x feet away at [clock position]."
+    },
+    {
+      "id": "count_people",
+      "category": "public_spaces",
+      "trigger_description": "Several people are visible in an indoor space, and the people are the most prominent element of the image.",
+      "prompt": "Based on this image, tell the user how many people are in the room.",
+      "example_output": "This room has X people in it."
+    },
+    {
+      "id": "find_empty_seat_transit",
+      "category": "public_spaces",
+      "trigger_description": "The interior of a bus or train, with rows of transit seating visible.",
+      "prompt": "Based on this image of a bus or train, tell the user where there is an empty seat, giving clock position and distance in feet.",
+      "example_output": "There is an empty seat at [clock position]."
+    },
+    {
+      "id": "find_queue_end",
+      "category": "public_spaces",
+      "trigger_description": "A line of people queuing, such as at a counter, checkout, or service desk.",
+      "prompt": "Based on this image, tell the user where the end of the queue is, with clock position and distance in feet.",
+      "example_output": "The end of the queue is x feet away at [clock position]."
+    },
+    {
+      "id": "find_door",
+      "category": "navigation",
+      "trigger_description": "A door, doorway, entrance, or exit is a prominent element of the image.",
+      "prompt": "Based on this image, tell the user where there is an entrance or exit, with clock position and distance in feet, and if possible, where it leads.",
+      "example_output": "At [clock position], there is a door that leads to [where the door leads]."
+    },
+    {
+      "id": "elevator_floor",
+      "category": "navigation",
+      "trigger_description": "Elevator doors, an elevator floor-indicator display, or a call-button panel is visible.",
+      "prompt": "Based on this image, tell the user what floor the elevator indicator shows and where the call button is, with clock position and distance in feet.",
+      "example_output": "The elevator is currently on floor [number], and the call button is x feet away at [clock position]."
+    },
+    {
+      "id": "read_crosswalk_signal",
+      "category": "navigation",
+      "trigger_description": "An outdoor street view featuring a pedestrian crossing signal, walk/don't-walk light, or countdown display.",
+      "prompt": "Read the crosswalk signal countdown or walk/don't-walk state from the image. Do NOT tell the user it is safe to cross; only report what the signal displays. If the signal is unclear or not fully visible, say so explicitly rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "You have X seconds left to cross."
+    },
+    {
+      "id": "detect_stairs",
+      "category": "navigation",
+      "trigger_description": "Stairs, steps, or a staircase are visible ahead in the walking path.",
+      "prompt": "Based on this image, tell the user how many stairs there are and at what clock position and distance in feet. If you cannot clearly count the stairs or judge the distance, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "There are X stairs at [clock position]."
+    },
+    {
+      "id": "find_trash_can",
+      "category": "public_spaces",
+      "trigger_description": "A trash can, garbage bin, or recycling bin is a prominent object in the image.",
+      "prompt": "Based on this image, tell the user where there is a trash can or recycling bin, with clock position and distance in feet.",
+      "example_output": "There is a trash/recycling can X feet away at [clock position]."
+    },
+    {
+      "id": "path_clear",
+      "category": "navigation",
+      "trigger_description": "A view down a walkway, corridor, sidewalk, or path stretching ahead of the camera.",
+      "prompt": "Based on this image, tell the user whether the pathway ahead is clear and for how many feet; if it is blocked, say what blocks it and where, using clock position and distance in feet.",
+      "example_output": "There is a clear walkway ahead for x feet."
+    },
+    {
+      "id": "walking_traffic_direction",
+      "category": "navigation",
+      "trigger_description": "Multiple pedestrians in motion dominate the scene, such as a busy sidewalk, concourse, or hallway.",
+      "prompt": "Based on this image, tell the user the direction of walking traffic using clock positions.",
+      "example_output": "The flow of walking traffic is toward [clock position]."
+    },
+    {
+      "id": "describe_plate",
+      "category": "dining",
+      "trigger_description": "The image is dominated by a plate, bowl, or tray of food at close range.",
+      "prompt": "Describe the items on the user's plate using clock positions.",
+      "example_output": "Your plate has: [Food] at [clock position]."
+    },
+    {
+      "id": "identify_container_contents",
+      "category": "dining",
+      "trigger_description": "A single cup, glass, bowl, or other container is the dominant close-range subject.",
+      "prompt": "Based on this image, tell the user what any container of food or drink contains.",
+      "example_output": "This glass/bowl contains [contents]."
+    },
+    {
+      "id": "food_doneness",
+      "category": "dining",
+      "trigger_description": "A close-up of food being cooked or prepared, such as on a pan, grill, or baking tray.",
+      "prompt": "Based on this image, tell the user if the food appears cooked, undercooked, or overcooked. Express uncertainty if unclear - never guess confidently about food safety; a confident wrong answer could make the user ill.",
+      "example_output": "This [food] appears [cooked/undercooked]."
+    },
+    {
+      "id": "read_menu",
+      "category": "dining",
+      "trigger_description": "A restaurant menu held up close, filling most of the frame with a list of dishes and prices.",
+      "prompt": "Read the menu items in this image to the user.",
+      "example_output": "This menu contains [food names]."
+    },
+    {
+      "id": "detect_spill",
+      "category": "dining",
+      "trigger_description": "Spilled food or liquid is visible on a table, counter, or floor.",
+      "prompt": "Based on this image, tell the user if there is a spill or mess and where it is, plus where napkins or tissues are if visible, with clock positions and distance in feet.",
+      "example_output": "[Food] has spilled; tissues are x feet away at [clock position]."
+    },
+    {
+      "id": "stove_burner_status",
+      "category": "home",
+      "trigger_description": "A stovetop, burner, or cooktop with its control knobs is the main subject.",
+      "prompt": "Based on this image, tell the user if the burner or stove appears to be on and where the controls are, with clock position and distance in feet. Express uncertainty if unclear rather than guessing - a wrong answer about a hot stove could physically endanger the user.",
+      "example_output": "The burner is on; the controls are x feet away at [clock position]."
+    },
+    {
+      "id": "read_food_label",
+      "category": "shopping",
+      "trigger_description": "A packaged food item held up close, showing its nutrition facts or ingredients label.",
+      "prompt": "Read the nutritional label of the item the user is holding.",
+      "example_output": "This item contains X calories, X% fat, etc."
+    },
+    {
+      "id": "lights_status",
+      "category": "home",
+      "trigger_description": "A light switch, lamp, or ceiling light is prominent, or the room is notably dark or dim.",
+      "prompt": "Based on this image, tell the user if the lights are on or off, and where the switch is if visible, with clock position and distance in feet.",
+      "example_output": "The lights are [on/off]. The switch is x feet away at [clock position]."
+    },
+    {
+      "id": "read_mail",
+      "category": "reading",
+      "trigger_description": "An envelope, letter, or printed document held up close, filling most of the frame with text.",
+      "prompt": "Read the mail or document in this image to the user.",
+      "example_output": "The mail says [details]."
+    },
+    {
+      "id": "detect_appliance",
+      "category": "home",
+      "trigger_description": "A household appliance (microwave, kettle, washing machine, coffee maker, etc.) is the dominant subject at medium range.",
+      "prompt": "Based on this image, tell the user if there is an appliance nearby, with clock position and distance in feet, then briefly explain how to use it.",
+      "example_output": "There is a [appliance] x feet away at [clock position]; it is used by [method]."
+    },
+    {
+      "id": "read_clock",
+      "category": "reading",
+      "trigger_description": "An analog or digital clock face is clearly visible in the image.",
+      "prompt": "If there is an analog or digital clock in this image, read the time to the user.",
+      "example_output": "The time is [time]."
+    },
+    {
+      "id": "locate_desk_items",
+      "category": "home",
+      "trigger_description": "A desk, tabletop, or counter surface with several objects on it fills most of the frame.",
+      "prompt": "Describe the items on the desk, table, or counter with clock positions and distance in feet.",
+      "example_output": "This desk has: [items]."
+    },
+    {
+      "id": "read_document_title",
+      "category": "reading",
+      "trigger_description": "A folder, file, or document lying on a desk with its title visible, seen at a distance rather than held up.",
+      "prompt": "If there is a file or document on the desk in this image, read its title aloud.",
+      "example_output": "The file at [clock position] reads [title]."
+    },
+    {
+      "id": "read_price_tag",
+      "category": "shopping",
+      "trigger_description": "A retail product or shelf label shown close up with a visible price.",
+      "prompt": "Read the price tag of the item the user is holding.",
+      "example_output": "[Product] costs x dollars."
+    },
+    {
+      "id": "atm_status",
+      "category": "public_spaces",
+      "trigger_description": "An ATM or cash machine is visible, possibly with people near it.",
+      "prompt": "Based on this image, tell the user if the ATM is free or occupied, and if there is a queue.",
+      "example_output": "The ATM is free / not free."
+    },
+    {
+      "id": "store_open_status",
+      "category": "shopping",
+      "trigger_description": "A storefront, shop entrance, or shop window viewed from outside, possibly with signs, lights, or shutters.",
+      "prompt": "Based on this image, tell the user if the store appears open or closed, using visible signs, lights, or gates.",
+      "example_output": "[Store] is open / closed."
+    },
+    {
+      "id": "payment_result",
+      "category": "shopping",
+      "trigger_description": "A card payment terminal or checkout screen shown close up, displaying a transaction status.",
+      "prompt": "Read the payment terminal screen in this image and tell the user if the transaction succeeded or failed.",
+      "example_output": "The transaction was successful."
+    },
+    {
+      "id": "find_escalator",
+      "category": "navigation",
+      "trigger_description": "An escalator is visible, with moving steps and handrails.",
+      "prompt": "Based on this image, tell the user where the escalator is, with clock position and distance in feet, and whether it is going up or down. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "There is an escalator going [up/down] x feet away at [clock position]."
+    },
+    {
+      "id": "read_elevator_buttons",
+      "category": "navigation",
+      "trigger_description": "The inside of an elevator, with the floor-button panel filling much of the frame.",
+      "prompt": "Based on this image, tell the user how the floor buttons are laid out, which floors are available, and where the door-open and alarm buttons are.",
+      "example_output": "The buttons go from floor [x] to [y] in [layout]. Door-open is at [position], alarm is at [position]."
+    },
+    {
+      "id": "find_ramp",
+      "category": "navigation",
+      "trigger_description": "A sloped ramp or wheelchair ramp is visible in or beside the walking path.",
+      "prompt": "Based on this image, tell the user where the ramp is, with clock position and distance in feet, whether it slopes up or down, and whether it has a handrail.",
+      "example_output": "There is a ramp sloping [up/down] x feet away at [clock position], with a handrail on the [side]."
+    },
+    {
+      "id": "read_room_number",
+      "category": "navigation",
+      "trigger_description": "A room number plate, door sign, or office nameplate shown close up on or beside a door.",
+      "prompt": "Read the room number or name on the sign to the user, including any braille-adjacent text.",
+      "example_output": "This door is room [number], [name]."
+    },
+    {
+      "id": "read_directional_sign",
+      "category": "navigation",
+      "trigger_description": "An overhead or wall-mounted wayfinding sign with arrows pointing to destinations, such as in an airport, mall, or hospital.",
+      "prompt": "Read every destination on the sign to the user, along with the direction its arrow points, translated into clock positions.",
+      "example_output": "[Destination] is toward [clock position]; [destination] is toward [clock position]."
+    },
+    {
+      "id": "find_restroom",
+      "category": "navigation",
+      "trigger_description": "A restroom sign, toilet symbol, or restroom doors with men/women/accessible icons.",
+      "prompt": "Based on this image, tell the user where the restroom is, with clock position and distance in feet, and which type it is (men's, women's, all-gender, accessible).",
+      "example_output": "The [type] restroom is x feet away at [clock position]."
+    },
+    {
+      "id": "corridor_intersection",
+      "category": "navigation",
+      "trigger_description": "A hallway or corridor that branches or meets another hallway ahead, forming a junction.",
+      "prompt": "Based on this image, tell the user how far ahead the hallway junction is and which directions it branches, using clock positions, plus any signs at the junction.",
+      "example_output": "In x feet the hallway branches toward [clock position] and [clock position]."
+    },
+    {
+      "id": "read_building_directory",
+      "category": "navigation",
+      "trigger_description": "A building directory board, floor plan, or mall map mounted on a wall or stand.",
+      "prompt": "Read the building directory or map to the user: list the floors or areas and what is located in each. If there is a 'you are here' marker, describe where the user is relative to key destinations.",
+      "example_output": "Floor 1 has [places]; floor 2 has [places]. You are near [landmark]."
+    },
+    {
+      "id": "detect_head_obstacle",
+      "category": "navigation",
+      "trigger_description": "An object at head height in the walking path, such as a low branch, overhanging sign, open window, or protruding shelf.",
+      "prompt": "Based on this image, warn the user about any obstacle at head or chest height in their path, with clock position and distance in feet, and its approximate height. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "Warning: a [object] at head height x feet ahead at [clock position]."
+    },
+    {
+      "id": "read_bus_number",
+      "category": "transit",
+      "trigger_description": "The front or side of a bus with a lit route number or destination display.",
+      "prompt": "Read the bus route number and destination shown on the bus display to the user. If the display is unreadable or cut off, say so rather than guessing.",
+      "example_output": "This is the [number] bus to [destination]."
+    },
+    {
+      "id": "read_departure_board",
+      "category": "transit",
+      "trigger_description": "An electronic departures or arrivals board, such as at a train station, bus terminal, or airport.",
+      "prompt": "Read the next few departures on the board to the user: time, destination, platform or gate, and any delay or cancellation.",
+      "example_output": "The [time] to [destination] leaves from platform [x], [on time/delayed]."
+    },
+    {
+      "id": "platform_edge",
+      "category": "transit",
+      "trigger_description": "A train or subway platform edge, with tracks, a yellow safety line, or a tactile warning strip visible.",
+      "prompt": "Based on this image, tell the user how far they are from the platform edge and in which clock direction it lies. Do not tell them it is safe to approach. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "The platform edge is x feet away at [clock position]."
+    },
+    {
+      "id": "train_door_status",
+      "category": "transit",
+      "trigger_description": "The doors of a train or subway car at a platform, seen from outside the car.",
+      "prompt": "Based on this image, tell the user whether the train doors are open or closed and where the nearest door is, with clock position and distance in feet. Do not tell them it is safe to board. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "The nearest train door is [open/closed], x feet away at [clock position]."
+    },
+    {
+      "id": "find_ticket_machine",
+      "category": "transit",
+      "trigger_description": "A ticket vending machine or fare card kiosk at a station.",
+      "prompt": "Based on this image, tell the user where the ticket machine is, with clock position and distance in feet, whether anyone is using it, and where the screen, card slot, and cash slot are if visible.",
+      "example_output": "There is a ticket machine x feet away at [clock position]; it is [free/in use]."
+    },
+    {
+      "id": "find_fare_gates",
+      "category": "transit",
+      "trigger_description": "A row of turnstiles or fare gates at a station entrance.",
+      "prompt": "Based on this image, tell the user where the fare gates are, with clock position and distance in feet, and which gate is the wide accessible gate if one is visible.",
+      "example_output": "The fare gates are x feet away at [clock position]; the wide gate is on the [side]."
+    },
+    {
+      "id": "read_bus_stop_sign",
+      "category": "transit",
+      "trigger_description": "A bus stop sign or pole, often listing route numbers and a schedule.",
+      "prompt": "Based on this image, read the routes listed on the bus stop sign and tell the user where the stop is, with clock position and distance in feet.",
+      "example_output": "This bus stop serves routes [numbers] and is x feet away at [clock position]."
+    },
+    {
+      "id": "identify_car",
+      "category": "transit",
+      "trigger_description": "A car stopped at a curb or pickup area, with its license plate visible.",
+      "prompt": "Based on this image, tell the user the car's color, make or type if recognizable, and license plate, with clock position and distance in feet. If the plate is not fully legible, say which characters you are unsure of.",
+      "example_output": "A [color] [make] with plate [plate] is x feet away at [clock position]."
+    },
+    {
+      "id": "find_baggage_carousel",
+      "category": "transit",
+      "trigger_description": "An airport baggage claim carousel or belt, possibly with luggage on it.",
+      "prompt": "Based on this image, tell the user where the baggage carousel is, with clock position and distance in feet, its number if shown, and whether bags are on it.",
+      "example_output": "Carousel [number] is x feet away at [clock position]; bags are [arriving/not yet arriving]."
+    },
+    {
+      "id": "detect_curb",
+      "category": "outdoor",
+      "trigger_description": "The edge of a sidewalk or curb drop-off is directly ahead or beside the user at close range.",
+      "prompt": "Based on this image, tell the user where the curb edge is, with clock position and distance in feet, whether it steps down or up, and whether there is a curb ramp. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "There is a curb stepping down x feet ahead at [clock position]."
+    },
+    {
+      "id": "find_crosswalk",
+      "category": "outdoor",
+      "trigger_description": "Painted crosswalk stripes or zebra-crossing markings on a road, without a pedestrian signal as the main subject.",
+      "prompt": "Based on this image, tell the user where the crosswalk begins, with clock position and distance in feet, and which direction it crosses. Do NOT tell the user it is safe to cross. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "The crosswalk starts x feet ahead at [clock position] and crosses toward [clock position]."
+    },
+    {
+      "id": "detect_construction",
+      "category": "outdoor",
+      "trigger_description": "Construction cones, barriers, scaffolding, or fencing on or beside a sidewalk.",
+      "prompt": "Based on this image, tell the user where the construction obstacle is, with clock position and distance in feet, whether it blocks the path, and if there is a way around it. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "Construction barriers block the sidewalk x feet ahead; there is a way around at [clock position]."
+    },
+    {
+      "id": "detect_bike_lane",
+      "category": "outdoor",
+      "trigger_description": "Bike lane markings or cyclists on or next to the path the user is walking on.",
+      "prompt": "Based on this image, tell the user where the bike lane or cyclists are relative to them, using clock positions and distance in feet, and whether they appear to be standing in it. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "A bike lane runs x feet to your [clock position]; a cyclist is approaching from [clock position]."
+    },
+    {
+      "id": "detect_vehicle_driveway",
+      "category": "outdoor",
+      "trigger_description": "A car or vehicle crossing or about to cross the sidewalk, such as at a driveway or parking-lot exit.",
+      "prompt": "Based on this image, warn the user about the vehicle crossing their path, with clock position and distance in feet, and whether it appears to be moving. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "Warning: a car is crossing the sidewalk x feet ahead at [clock position]."
+    },
+    {
+      "id": "detect_icy_surface",
+      "category": "outdoor",
+      "trigger_description": "Snow, ice, slush, or puddles on the ground in the walking path.",
+      "prompt": "Based on this image, tell the user where the slippery or wet area is, with clock position and distance in feet, and whether there is a clearer route. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "There is ice x feet ahead at [clock position]; the clearer route is toward [clock position]."
+    },
+    {
+      "id": "read_street_sign",
+      "category": "outdoor",
+      "trigger_description": "A street name sign on a pole or building corner.",
+      "prompt": "Read the street names on the sign to the user, and which direction each street runs relative to the user if it can be inferred.",
+      "example_output": "You are at the corner of [street] and [street]."
+    },
+    {
+      "id": "read_house_number",
+      "category": "outdoor",
+      "trigger_description": "A building facade or front door with a house number or address visible.",
+      "prompt": "Based on this image, read the house or building number to the user and tell them where the front door is, with clock position and distance in feet.",
+      "example_output": "This is number [number]; the front door is x feet away at [clock position]."
+    },
+    {
+      "id": "find_bench",
+      "category": "outdoor",
+      "trigger_description": "An outdoor bench, park bench, or bus shelter seating is a prominent object.",
+      "prompt": "Based on this image, tell the user where the nearest bench is, with clock position and distance in feet, and whether it appears free.",
+      "example_output": "There is a free bench x feet away at [clock position]."
+    },
+    {
+      "id": "find_mailbox",
+      "category": "outdoor",
+      "trigger_description": "A public mailbox, postal drop box, or residential mailbox.",
+      "prompt": "Based on this image, tell the user where the mailbox is, with clock position and distance in feet, and where its slot or door is.",
+      "example_output": "There is a mailbox x feet away at [clock position]; the slot is on the [side]."
+    },
+    {
+      "id": "weather_conditions",
+      "category": "outdoor",
+      "trigger_description": "An outdoor view where the sky, rain, snow, or wet ground is a major element.",
+      "prompt": "Based on this image, describe the weather conditions to the user: sky, precipitation, and ground conditions.",
+      "example_output": "It is [cloudy/sunny/raining], and the ground is [dry/wet/snowy]."
+    },
+    {
+      "id": "detect_dog",
+      "category": "outdoor",
+      "trigger_description": "A dog or other animal is near the user.",
+      "prompt": "Based on this image, tell the user where the animal is, with clock position and distance in feet, whether it appears leashed, and whether it seems to be approaching.",
+      "example_output": "A [leashed/unleashed] dog is x feet away at [clock position], [approaching/not approaching]."
+    },
+    {
+      "id": "read_parking_sign",
+      "category": "outdoor",
+      "trigger_description": "A parking regulation sign with times, days, or restrictions.",
+      "prompt": "Read the parking sign to the user, including times, days, and restrictions.",
+      "example_output": "No parking [days] from [time] to [time]."
+    },
+    {
+      "id": "detect_fire_smoke",
+      "category": "safety",
+      "trigger_description": "Flames, smoke, or a glowing fire is visible anywhere in the image.",
+      "prompt": "Immediately tell the user where the fire or smoke is, with clock position and distance in feet, and the nearest visible exit or direction away from it. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "Warning: smoke at [clock position] x feet away. Move toward [clock position]."
+    },
+    {
+      "id": "find_emergency_exit",
+      "category": "safety",
+      "trigger_description": "An illuminated EXIT sign or emergency exit door with a push bar.",
+      "prompt": "Based on this image, tell the user where the emergency exit is, with clock position and distance in feet, and whether it says it will sound an alarm.",
+      "example_output": "The emergency exit is x feet away at [clock position]."
+    },
+    {
+      "id": "find_fire_extinguisher",
+      "category": "safety",
+      "trigger_description": "A fire extinguisher, fire alarm pull station, or fire hose cabinet.",
+      "prompt": "Based on this image, tell the user where the fire extinguisher or fire alarm is, with clock position and distance in feet, and at what height.",
+      "example_output": "There is a fire extinguisher x feet away at [clock position], at waist height."
+    },
+    {
+      "id": "detect_broken_glass",
+      "category": "safety",
+      "trigger_description": "Broken glass, shards, or sharp debris on the floor or a surface.",
+      "prompt": "Based on this image, warn the user where the broken glass or sharp debris is, with clock position and distance in feet, and how large an area it covers. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "Warning: broken glass on the floor x feet ahead at [clock position]."
+    },
+    {
+      "id": "detect_trip_hazard",
+      "category": "safety",
+      "trigger_description": "Objects lying on the floor in the walking path, such as cords, bags, shoes, or toys.",
+      "prompt": "Based on this image, warn the user about any objects on the floor in their path, with clock position and distance in feet. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "Warning: a [object] on the floor x feet ahead at [clock position]."
+    },
+    {
+      "id": "detect_wet_floor",
+      "category": "safety",
+      "trigger_description": "A yellow wet-floor sign, a mop bucket, or a visibly wet, shiny floor.",
+      "prompt": "Based on this image, warn the user where the wet floor is, with clock position and distance in feet, and whether there is a dry way around. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "Warning: wet floor x feet ahead at [clock position]; go around on the [side]."
+    },
+    {
+      "id": "read_warning_sign",
+      "category": "safety",
+      "trigger_description": "A warning, caution, danger, or hazard sign is the main subject.",
+      "prompt": "Read the warning sign to the user word for word and explain what it warns about.",
+      "example_output": "The sign says [text]: [what it means]."
+    },
+    {
+      "id": "detect_open_cabinet",
+      "category": "safety",
+      "trigger_description": "An open cabinet door, drawer, or dishwasher door protruding into the space ahead.",
+      "prompt": "Based on this image, warn the user about the open door or drawer, with clock position and distance in feet, and at what height it sticks out. If you cannot clearly see this, say you are unsure rather than guessing - a wrong answer could physically endanger the user.",
+      "example_output": "Warning: an open cabinet door at head height x feet away at [clock position]."
+    },
+    {
+      "id": "read_medication_label",
+      "category": "health",
+      "trigger_description": "A pill bottle, prescription label, or medicine box held up close.",
+      "prompt": "Read the medication name, strength, dosage instructions, and any warnings on the label word for word. If any part is unreadable, say exactly which part rather than guessing - a wrong answer about medication could harm the user.",
+      "example_output": "This is [medication] [strength]. Take [dosage instructions]. Warning: [warnings]."
+    },
+    {
+      "id": "describe_pills",
+      "category": "health",
+      "trigger_description": "One or more loose pills or tablets in a hand, on a table, or in a pill organizer.",
+      "prompt": "Describe the pills' color, shape, size, and any markings, and how many there are. Do NOT identify the medication by name; tell the user to confirm with the bottle or a pharmacist - a wrong answer about medication could harm the user.",
+      "example_output": "There are [n] [color] [shape] pills marked [imprint]. Please confirm with the bottle."
+    },
+    {
+      "id": "read_medical_display",
+      "category": "health",
+      "trigger_description": "The screen of a medical device such as a thermometer, blood pressure monitor, glucose meter, or pulse oximeter.",
+      "prompt": "Read every number and unit on the device display to the user and say what each one is. If a digit is unclear, say so rather than guessing - a wrong reading could harm the user.",
+      "example_output": "Your blood pressure reads [x] over [y], pulse [z]."
+    },
+    {
+      "id": "read_scale",
+      "category": "health",
+      "trigger_description": "A bathroom or kitchen scale with a readable display.",
+      "prompt": "Read the weight shown on the scale and its unit to the user.",
+      "example_output": "The scale reads [x] [unit]."
+    },
+    {
+      "id": "read_thermostat",
+      "category": "home",
+      "trigger_description": "A thermostat or climate control panel on a wall.",
+      "prompt": "Read the thermostat to the user: current temperature, set temperature, and mode (heat, cool, off) if visible.",
+      "example_output": "It is [x] degrees; the thermostat is set to [y] on [mode]."
+    },
+    {
+      "id": "read_appliance_controls",
+      "category": "home",
+      "trigger_description": "A close-up of an appliance control panel or display, such as a microwave, oven, washer, or dryer.",
+      "prompt": "Read the appliance display and describe the buttons or dial settings and their positions, so the user can operate it.",
+      "example_output": "The display shows [x]. Start is at [position]; the dial is set to [setting]."
+    },
+    {
+      "id": "faucet_status",
+      "category": "home",
+      "trigger_description": "A sink with a faucet, where running water may or may not be visible.",
+      "prompt": "Based on this image, tell the user whether the faucet is running and where the handles are, using clock positions.",
+      "example_output": "The faucet is [running/off]; the handle is at [clock position]."
+    },
+    {
+      "id": "door_lock_status",
+      "category": "home",
+      "trigger_description": "A close-up of a door lock, deadbolt, or door chain.",
+      "prompt": "Based on this image, tell the user whether the lock or deadbolt appears locked or unlocked. If you cannot tell, say so rather than guessing.",
+      "example_output": "The deadbolt appears [locked/unlocked]."
+    },
+    {
+      "id": "find_outlet",
+      "category": "home",
+      "trigger_description": "A wall power outlet, power strip, or charging port is prominent.",
+      "prompt": "Based on this image, tell the user where the outlet is, with clock position and distance in feet, how high it is, and which sockets are free.",
+      "example_output": "There is an outlet x feet away at [clock position] near the floor; the top socket is free."
+    },
+    {
+      "id": "describe_remote",
+      "category": "home",
+      "trigger_description": "A TV remote or other remote control held up close.",
+      "prompt": "Describe the layout of the remote's main buttons (power, volume, channel, input, navigation) and where each is.",
+      "example_output": "Power is top [left/right]; volume is on the [side]; the arrow pad is in the middle."
+    },
+    {
+      "id": "read_tv_screen",
+      "category": "home",
+      "trigger_description": "A television screen showing a program, menu, or on-screen text.",
+      "prompt": "Based on this image, tell the user what is on the TV screen, reading any menu options, captions, or titles.",
+      "example_output": "The TV shows [content]. The highlighted option is [option]."
+    },
+    {
+      "id": "identify_package",
+      "category": "home",
+      "trigger_description": "A delivery box, envelope, or parcel on a doorstep or floor, with a shipping label.",
+      "prompt": "Read the shipping label to the user: recipient name, sender, and carrier if visible.",
+      "example_output": "This package is for [name] from [sender], delivered by [carrier]."
+    },
+    {
+      "id": "plant_condition",
+      "category": "home",
+      "trigger_description": "A houseplant or potted plant is the main subject.",
+      "prompt": "Based on this image, describe the plant and whether it looks healthy, wilted, dry, or overwatered.",
+      "example_output": "This [plant] looks [healthy/wilted]; the soil looks [dry/moist]."
+    },
+    {
+      "id": "identify_clothing",
+      "category": "personal",
+      "trigger_description": "A single piece of clothing held up or laid out flat.",
+      "prompt": "Describe the clothing item: type, color, pattern, and any visible stains, holes, or logos.",
+      "example_output": "This is a [color] [pattern] [item] with no visible stains."
+    },
+    {
+      "id": "outfit_check",
+      "category": "personal",
+      "trigger_description": "A mirror reflection of a person showing their outfit.",
+      "prompt": "Describe the outfit in the mirror: each item's color and pattern, whether they look coordinated, and any visible issues like a turned collar or stain.",
+      "example_output": "You are wearing a [item] and [item]; they match. Your collar is [issue]."
+    },
+    {
+      "id": "identify_currency",
+      "category": "personal",
+      "trigger_description": "Paper money or banknotes held up close or fanned out.",
+      "prompt": "Tell the user the currency and denomination of each bill shown, and the total.",
+      "example_output": "You have a [x] dollar bill and a [y] dollar bill, totaling [z] dollars."
+    },
+    {
+      "id": "count_coins",
+      "category": "personal",
+      "trigger_description": "Coins in a hand, on a table, or in a tray.",
+      "prompt": "Identify each coin and tell the user the total value. If some coins are face-down or unclear, say so.",
+      "example_output": "You have [n] quarters and [n] dimes, totaling [x]."
+    },
+    {
+      "id": "read_card",
+      "category": "personal",
+      "trigger_description": "A business card, ID card, gift card, or bank card held up close.",
+      "prompt": "Read the name, type of card, and other key text to the user. For any card number, read only the last four digits.",
+      "example_output": "This is a [type] card for [name], ending in [last four]."
+    },
+    {
+      "id": "identify_product",
+      "category": "shopping",
+      "trigger_description": "The front of a product package or can held up close, showing branding rather than a nutrition label.",
+      "prompt": "Tell the user what the product is: brand, product name, flavor or variety, and size.",
+      "example_output": "This is [brand] [product], [flavor], [size]."
+    },
+    {
+      "id": "read_expiration_date",
+      "category": "shopping",
+      "trigger_description": "A close-up of a printed best-by, use-by, or expiration date stamp on packaging.",
+      "prompt": "Read the expiration or best-by date to the user. If the date is smudged or unclear, say so rather than guessing.",
+      "example_output": "The best-by date is [date]."
+    },
+    {
+      "id": "read_receipt",
+      "category": "shopping",
+      "trigger_description": "A paper receipt held up close.",
+      "prompt": "Read the store name, the items with prices, and the total from the receipt.",
+      "example_output": "[Store]: [item] [price], [item] [price]. Total [amount]."
+    },
+    {
+      "id": "produce_ripeness",
+      "category": "shopping",
+      "trigger_description": "A close-up of fruit or vegetables, held or on display.",
+      "prompt": "Identify the produce and describe its ripeness and any visible bruises or mold. Express uncertainty when unsure.",
+      "example_output": "These [fruit] look [ripe/unripe], with a bruise on one."
+    },
+    {
+      "id": "find_checkout",
+      "category": "shopping",
+      "trigger_description": "Several checkout lanes or registers at the front of a store.",
+      "prompt": "Based on this image, tell the user which checkout lane is open with the shortest line, with clock position and distance in feet, and whether it is self-checkout.",
+      "example_output": "Lane [x] is open with [n] people, x feet away at [clock position]."
+    },
+    {
+      "id": "read_aisle_sign",
+      "category": "shopping",
+      "trigger_description": "An overhead store aisle sign with a number and product categories.",
+      "prompt": "Read the aisle number and the categories listed on the aisle sign to the user.",
+      "example_output": "Aisle [x]: [categories]."
+    },
+    {
+      "id": "find_shopping_cart",
+      "category": "shopping",
+      "trigger_description": "A row of shopping carts or baskets near a store entrance.",
+      "prompt": "Based on this image, tell the user where the shopping carts or baskets are, with clock position and distance in feet.",
+      "example_output": "The carts are x feet away at [clock position]."
+    },
+    {
+      "id": "read_clothing_tag",
+      "category": "shopping",
+      "trigger_description": "A clothing tag, size label, or care label held up close.",
+      "prompt": "Read the size, price, material, and washing instructions on the tag to the user.",
+      "example_output": "Size [x], [material], [price]. Machine wash [instructions]."
+    },
+    {
+      "id": "describe_place_setting",
+      "category": "dining",
+      "trigger_description": "A single table place setting seen from the seated diner's view, with utensils, glasses, and napkins around a plate.",
+      "prompt": "Describe where each utensil, glass, and napkin is around the user's plate, using clock positions.",
+      "example_output": "Your fork is at 9 o'clock, knife at 3 o'clock, and glass at 1 o'clock."
+    },
+    {
+      "id": "find_condiments",
+      "category": "dining",
+      "trigger_description": "A condiment, utensil, or napkin station, or several sauce bottles on a counter.",
+      "prompt": "Based on this image, tell the user which condiments, utensils, or napkins are available and where each is, with clock position and distance in feet.",
+      "example_output": "Ketchup is at [clock position], napkins at [clock position], forks at [clock position]."
+    },
+    {
+      "id": "pour_level",
+      "category": "dining",
+      "trigger_description": "A cup, mug, or glass being filled from a pitcher, pot, or tap at close range.",
+      "prompt": "Tell the user approximately how full the cup is as a fraction, and warn when it is close to the brim.",
+      "example_output": "The cup is about three-quarters full - almost at the top."
+    },
+    {
+      "id": "read_vending_machine",
+      "category": "dining",
+      "trigger_description": "A vending machine, soda fountain, or coffee machine with selectable options.",
+      "prompt": "Read the options and their codes or buttons on the machine, plus prices if shown, and where the payment slot is.",
+      "example_output": "[Item] is [code] for [price]. Pay at [position]."
+    },
+    {
+      "id": "find_water_fountain",
+      "category": "public_spaces",
+      "trigger_description": "A drinking fountain or water bottle filling station.",
+      "prompt": "Based on this image, tell the user where the water fountain is, with clock position and distance in feet, and where its button or sensor is.",
+      "example_output": "There is a water fountain x feet away at [clock position]; the button is on the [side]."
+    },
+    {
+      "id": "find_info_desk",
+      "category": "public_spaces",
+      "trigger_description": "A reception desk, information counter, or help desk, possibly staffed.",
+      "prompt": "Based on this image, tell the user where the reception or information desk is, with clock position and distance in feet, and whether someone is staffing it.",
+      "example_output": "The information desk is x feet away at [clock position]; someone is there."
+    },
+    {
+      "id": "find_auditorium_seat",
+      "category": "public_spaces",
+      "trigger_description": "Rows of theater, stadium, or auditorium seating with row letters or seat numbers.",
+      "prompt": "Based on this image, read any visible row letters and seat numbers, and tell the user where the nearest empty seat is, with clock position and distance in feet.",
+      "example_output": "This is row [x]. The nearest empty seat is x feet away at [clock position]."
+    },
+    {
+      "id": "find_charging_station",
+      "category": "public_spaces",
+      "trigger_description": "A public phone charging station or bank of charging outlets.",
+      "prompt": "Based on this image, tell the user where the charging station is, with clock position and distance in feet, and which ports are free.",
+      "example_output": "There is a charging station x feet away at [clock position] with [n] free ports."
+    },
+    {
+      "id": "person_approaching",
+      "category": "social",
+      "trigger_description": "A single person facing the camera at conversational distance.",
+      "prompt": "Based on this image, tell the user that someone is nearby, with clock position and distance in feet, and describe their general appearance and whether they seem to be approaching or looking at the user. Do not guess the person's identity.",
+      "example_output": "A person in a [color] [clothing] is x feet away at [clock position], looking toward you."
+    },
+    {
+      "id": "describe_expression",
+      "category": "social",
+      "trigger_description": "A close-up of one person's face is the main subject.",
+      "prompt": "Describe the person's facial expression and apparent mood in a few words, without guessing their identity.",
+      "example_output": "They are smiling and seem relaxed."
+    },
+    {
+      "id": "identify_gesture",
+      "category": "social",
+      "trigger_description": "A person making a clear hand gesture, such as waving, pointing, or holding up a hand.",
+      "prompt": "Describe the gesture the person is making and, if they are pointing, which direction in clock positions.",
+      "example_output": "The person is waving at you from [clock position]."
+    },
+    {
+      "id": "read_name_badge",
+      "category": "social",
+      "trigger_description": "A person wearing a name tag, lanyard badge, or uniform name patch, shown close enough to read.",
+      "prompt": "Read the name and title or role on the person's badge to the user.",
+      "example_output": "Their badge says [name], [role]."
+    },
+    {
+      "id": "read_book_page",
+      "category": "reading",
+      "trigger_description": "An open book or magazine page filling most of the frame.",
+      "prompt": "Read the text on the page to the user, starting from the top. Mention any headings or page numbers.",
+      "example_output": "Page [x]: [text]."
+    },
+    {
+      "id": "read_handwriting",
+      "category": "reading",
+      "trigger_description": "A handwritten note, list, or card held close.",
+      "prompt": "Read the handwritten text to the user. Mark any words you cannot read as unclear rather than guessing.",
+      "example_output": "The note says: [text]."
+    },
+    {
+      "id": "read_poster",
+      "category": "reading",
+      "trigger_description": "A poster, flyer, or notice pinned to a wall or board.",
+      "prompt": "Read the poster or flyer to the user: title, key details like dates, times, and places, and contact info.",
+      "example_output": "The poster says: [title], [date], [location]."
+    },
+    {
+      "id": "read_calendar",
+      "category": "reading",
+      "trigger_description": "A wall calendar, planner, or schedule page.",
+      "prompt": "Read the visible month and any written events or appointments to the user, by date.",
+      "example_output": "This is [month]. On the [date] it says [event]."
+    },
+    {
+      "id": "read_screen",
+      "category": "reading",
+      "trigger_description": "A computer monitor, laptop, tablet, or phone screen with readable text, other than a TV.",
+      "prompt": "Read the main content on the screen to the user, starting with any title or dialog box, and mention any buttons.",
+      "example_output": "The screen shows [title]: [content]. Buttons: [options]."
+    },
+    {
+      "id": "read_whiteboard",
+      "category": "work",
+      "trigger_description": "A whiteboard, chalkboard, or flip chart with writing or diagrams.",
+      "prompt": "Read the writing on the board to the user, top to bottom, and briefly describe any diagrams.",
+      "example_output": "The board says: [text]. There is a diagram of [description]."
+    },
+    {
+      "id": "read_presentation_slide",
+      "category": "work",
+      "trigger_description": "A projected presentation slide or large meeting-room display.",
+      "prompt": "Read the slide title and bullet points to the user, and briefly describe any chart or image.",
+      "example_output": "Slide: [title]. [points]. The chart shows [description]."
+    },
+    {
+      "id": "find_printer",
+      "category": "work",
+      "trigger_description": "An office printer or copier, possibly with a control panel or display.",
+      "prompt": "Based on this image, tell the user where the printer is, with clock position and distance in feet, what its display says, and where the paper output tray is.",
+      "example_output": "The printer is x feet away at [clock position]; the display says [text]."
+    },
+    {
+      "id": "general_description",
+      "category": "general",
+      "trigger_description": "The image does not clearly match any other scenario's visual signature.",
+      "prompt": "Give a brief, actionable description of the scene for a visually impaired person. Use clock positions and distances in feet. Prioritize obstacles, hazards, and useful objects. No preamble - start directly with the description.",
+      "example_output": "There is a [object] x feet away at [clock position]."
+    }
+  ]
+}
